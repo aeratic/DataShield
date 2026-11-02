@@ -4,7 +4,7 @@
 #   curl -fsSL https://datashield.aeratic.com/install | sh -s -- tui
 #
 # Picks the right package for this machine from the latest GitHub release and
-# installs it. `tui` (default) installs DataShield TUI; `gui` will install
+# installs it (DATASHIELD_DEST overrides the destination). `tui` (default) installs DataShield TUI; `gui` will install
 # DataShield GUI once it ships. Set DATASHIELD_VERSION=v0.2.0 to pin a release.
 set -eu
 
@@ -40,9 +40,9 @@ trap 'rm -rf "$tmp"' EXIT
 case "$os" in
 Darwin)
     asset="DataShield-TUI-macos-$arch.dmg"
-    say "downloading $asset…"
+    say "downloading ${asset}..."
     curl -fsSL -o "$tmp/$asset" "$base/$asset" || fail "download failed: $base/$asset"
-    dest="/Applications"; [ -w "$dest" ] || dest="$HOME/Applications"
+    dest="${DATASHIELD_DEST:-/Applications}"; [ -w "$dest" ] || dest="$HOME/Applications"
     mkdir -p "$dest"
     mnt="$(hdiutil attach -nobrowse -readonly "$tmp/$asset" | awk -F'\t' '/\/Volumes\//{print $NF}')"
     rm -rf "$dest/DataShield.app"
@@ -55,10 +55,10 @@ Darwin)
     ;;
 Linux)
     asset="datashield-tui-linux-$arch.tar.gz"
-    say "downloading $asset…"
+    say "downloading ${asset}..."
     curl -fsSL -o "$tmp/$asset" "$base/$asset" || fail "download failed: $base/$asset"
     tar -xzf "$tmp/$asset" -C "$tmp"
-    bindir="$HOME/.local/bin"; mkdir -p "$bindir"
+    bindir="${DATASHIELD_DEST:-$HOME/.local/bin}"; mkdir -p "$bindir"
     install -m755 "$tmp/datashield-tui" "$bindir/datashield-tui"
     install -m755 "$tmp/datashield"     "$bindir/datashield"
     mkdir -p "$HOME/.config/datashield" "$HOME/.local/share/applications" "$HOME/.local/share/icons/hicolor/128x128/apps"
