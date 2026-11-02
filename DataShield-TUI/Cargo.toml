@@ -1,0 +1,82 @@
+[package]
+name = "datashield-tui"
+version = "0.1.0"
+edition = "2021"
+description = "TerminalDataShield — TUI (ratatui) front-end sharing the CLI crypto/vault core"
+authors = ["Bruno Galimi"]
+license = "GPL-3.0-or-later"
+
+[[bin]]
+name = "datashield-tui"
+path = "src/main.rs"
+
+[dependencies]
+datashield-core = { path = "../DataShield-Core" }
+# TUI
+ratatui = "0.29"
+# shared core needs these (copied from the CLI):
+# two-way (AEAD)
+aes = "0.8"
+aes-gcm = "0.10"
+aes-gcm-siv = "0.11"
+chacha20poly1305 = "0.10"
+eax = "0.5"
+ccm = "0.5"
+ocb3 = "0.1"
+ascon-aead = "0.4"
+deoxys = "0.1"
+# one-way (KDF / hash)
+argon2 = "0.5"
+scrypt = { version = "0.11", default-features = false }
+pbkdf2 = "0.12"
+bcrypt-pbkdf = "0.10"
+hkdf = "0.12"
+sha1 = "0.10"
+sha2 = "0.10"
+sha3 = "0.10"
+md-5 = "0.10"
+blake2 = "0.10"
+blake3 = "1"
+# storage / misc
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+base64 = "0.22"
+zeroize = "1"
+subtle = "2"
+directories = "5"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+getrandom = "0.2"
+anyhow = "1"
+# favicons: fetch a site's /favicon.ico (opt-in, default on) + decode/downscale
+ureq = "2"
+image = { version = "0.25", default-features = false, features = ["ico", "png", "gif", "jpeg"] }
+ratatui-image = { version = "8.0.1", default-features = false, features = ["crossterm"] }
+zxcvbn = "3"
+totp-rs = "5"
+# system clipboard (pure-Rust backends; no external `xclip`/`wl-copy` binary).
+# `wayland-data-control` is NOT a default feature, and without it arboard ships
+# the X11 backend alone: under a Wayland compositor the copy lands in XWayland's
+# clipboard, which Wayland-native apps never read — arboard returns Ok and the
+# "copied" toast is honest about the wrong universe. With the feature on, the
+# crate picks the wlr-data-control backend whenever WAYLAND_DISPLAY is set and
+# falls back to X11 otherwise (and also when the compositor lacks the protocol),
+# so this ADDS a backend rather than swapping one out.
+arboard = { version = "3", features = ["wayland-data-control"] }
+# local semantic search: multilingual-e5-small run ON DEVICE through ONNX
+# Runtime (fastembed wraps `ort`). Default features are off on purpose:
+# `image-models` would pull a second `image` tree we don't use, and rustls
+# keeps the TLS pure-Rust (no OpenSSL headers to find at build time). The model
+# itself is downloaded once, on the user's word, into the app data directory —
+# after that nothing here talks to the network.
+fastembed = { version = "6", default-features = false, features = [
+    "ort-download-binaries-rustls-tls",
+    "hf-hub-rustls-tls",
+] }
+# the localhost agent API (see `src/api.rs`). tiny_http is a BLOCKING server on
+# its own std threads, which is the only shape that fits a crate with no async
+# runtime — the whole app is detached threads + mpsc drained from the tick.
+tiny_http = "0.12"
+
+[dev-dependencies]
+tempfile = "3"

@@ -1,0 +1,7 @@
+[workspace]
+resolver = "2"
+members = ["DataShield-Core", "DataShield-TUI"]
+
+[profile.release]
+lto = true
+strip = true

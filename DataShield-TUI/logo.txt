@@ -1,0 +1,7 @@
+; DataShield TUI logo.
+;
+; Leave this file with only ; comment lines to show the built-in COLOUR logo —
+; the pixel-Saturn with its animated ring. To use YOUR OWN logo instead, put
+; any text/ASCII/Unicode below this line: it is drawn in the header (left-aligned)
+; in the brand colour. Lines starting with ; are ignored. Turn the header off
+; entirely with the `logo` toggle on the settings page (show_logo = false).

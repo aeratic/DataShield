@@ -1,0 +1,14 @@
+# build output
+/target/
+**/target/
+# macOS
+.DS_Store
+# local vaults / data never belong in the repo
+*.vault
+# editor
+.idea/
+.vscode/
+# extension build output
+/extension/dist/
+# design working files stay local
+/DataShield-TUI/design-screens/

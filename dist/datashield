@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# DataShield launcher — opens datashield-tui in its OWN dedicated terminal.
+#
+# The app always runs inside a kitty window driven by datashield.kitty.conf,
+# so DataShield's typography, paper colour, padding and graphics are fully its
+# own and independent from the user's everyday terminal. `--class DataShield`
+# lets window managers place/style it like a standalone application.
+set -euo pipefail
+
+# config next to this script, or installed under XDG config
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+conf="${DATASHIELD_TERM_CONF:-}"
+if [[ -z "$conf" ]]; then
+    for c in "$here/datashield.kitty.conf" \
+             "${XDG_CONFIG_HOME:-$HOME/.config}/datashield/datashield.kitty.conf" \
+             /usr/share/datashield/datashield.kitty.conf; do
+        [[ -f "$c" ]] && conf="$c" && break
+    done
+fi
+
+# resolve the real TUI binary — never this launcher itself (it may be
+# installed AS `datashield-tui` on machines where `datashield` is taken by
+# the legacy C app)
+self="$(realpath "${BASH_SOURCE[0]}")"
+bin=""
+[[ -x "$HOME/.cargo/bin/datashield-tui" ]] && bin="$HOME/.cargo/bin/datashield-tui"
+if [[ -z "$bin" ]]; then
+    while read -r cand; do
+        [[ "$(realpath "$cand")" != "$self" ]] && bin="$cand" && break
+    done < <(type -ap datashield-tui)
+fi
+if [[ -z "$bin" ]]; then
+    echo "datashield-tui not found — install it with: cargo install --path ." >&2
+    exit 1
+fi
+
+# the app senses its own terminal (enables the faint backdrop rain, etc.)
+export DATASHIELD_OWN_TERM=1
+
+# --class is X11/Wayland only: macOS kitty rejects it, so skip it there.
+kitty_class="--class=DataShield"
+[[ "$(uname -s)" == Darwin ]] && kitty_class="--title=DataShield"
+if command -v kitty >/dev/null && [[ -n "$conf" ]]; then
+    exec kitty --single-instance --instance-group DataShield --config "$conf" "$kitty_class" --title DataShield "$bin" "$@"
+elif command -v kitty >/dev/null; then
+    exec kitty --single-instance --instance-group DataShield "$kitty_class" --title DataShield "$bin" "$@"
+fi
+# no kitty → run in the current terminal (favicons fall back to monograms)
+exec "$bin" "$@"

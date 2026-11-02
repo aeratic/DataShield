@@ -1,0 +1,48 @@
+name: release
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  macos:
+    runs-on: macos-latest   # arm64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: brew install --cask kitty
+      - run: cargo build --release -p datashield-tui
+      - run: dist/macos/build-app.sh
+      - name: dmg
+        run: |
+          mkdir -p out/dmg && cp -R target/macos.noindex/DataShield.app out/dmg/
+          ln -s /Applications out/dmg/Applications
+          hdiutil create -volname DataShield -srcfolder out/dmg -ov -format UDZO "out/DataShield-TUI-macos-aarch64.dmg"
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: out/*.dmg
+
+  linux:
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            arch: x86_64
+          - target: aarch64-unknown-linux-gnu
+            arch: aarch64
+    runs-on: ${{ matrix.arch == 'aarch64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release -p datashield-tui
+      - name: tarball
+        run: |
+          mkdir -p out/pkg
+          cp target/release/datashield-tui dist/datashield dist/datashield.kitty.conf dist/datashield.desktop out/pkg/
+          cp extension/icons/128.png out/pkg/datashield.png
+          tar -czf "out/datashield-tui-linux-${{ matrix.arch }}.tar.gz" -C out/pkg .
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: out/*.tar.gz

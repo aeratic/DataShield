@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=DataShield
+GenericName=Password Manager
+Comment=Keyboard-driven encrypted password manager in its own terminal
+Exec=datashield
+Icon=datashield
+Terminal=false
+Categories=Utility;Security;
+Keywords=password;vault;security;
+StartupWMClass=DataShield

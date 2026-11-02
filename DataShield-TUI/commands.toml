@@ -1,0 +1,323 @@
+# DataShield TUI — command registry.
+#
+# This file IS the registry: the command palette, command matching, the
+# dispatch and the descriptions are all built from it. On first run a copy is
+# written to your data directory (next to the vaults) so you can customise it;
+# if it becomes unreadable the app falls back to this built-in default.
+#
+# Each [[command]] entry:
+#   name                 canonical name shown in the palette (matching is
+#                        case-insensitive)
+#   aliases              other words that trigger the same command (optional)
+#   pages                where the command can be used: "access" (the vault
+#                        list) and/or "vault" (inside an open vault)
+#   action               the built-in behaviour it triggers; must be one of:
+#                        help, language, create_vault, delete_vault, nuke_vault,
+#                        export_vault, import_vault, panel, settings
+#   description.en / .it  one-line help shown under the command
+#   [[command.params]]   optional parameters, shown as `name [p1] [p2]`. Each:
+#                          name          the placeholder shown in brackets
+#                          kind          "input"  = free text (a form field)
+#                                        "choice" = pick from a closed set
+#                          description.en/.it  one line explaining the parameter
+#
+# You may rename commands, add aliases, restrict pages, or reword things
+# freely. The set of `action` values is fixed (each maps to code); everything
+# else is yours.
+#
+# `version` tracks the built-in command set. When the app ships a newer set,
+# an older on-disk file is regenerated and your previous one is kept as
+# commands.toml.bak. Bump this only in the shipped default.
+version = 15
+
+[[command]]
+name = "help"
+pages = ["access", "vault"]
+action = "help"
+description.en = "show the commands of this page"
+description.it = "mostra i comandi di questa pagina"
+
+[[command]]
+name = "commands"
+pages = ["access", "vault"]
+action = "help"
+description.en = "show the commands of this page"
+description.it = "mostra i comandi di questa pagina"
+
+[[command]]
+name = "createVault"
+pages = ["access"]
+action = "create_vault"
+description.en = "create a new encrypted vault. In one line: createVault <name> <password> [algorithm] [kdf] — the last two are optional (default AES-256-GCM / Argon2id). With just the name (or none) the step-by-step form opens instead."
+description.it = "crea un nuovo vault cifrato. In un colpo solo: createVault <nome> <password> [algoritmo] [kdf] — gli ultimi due sono facoltativi (default AES-256-GCM / Argon2id). Con solo il nome (o niente) si apre invece la scheda passo-passo."
+  [[command.params]]
+  name = "vault_name"
+  kind = "input"
+  description.en = "the name the new vault is identified by"
+  description.it = "il nome con cui il nuovo vault sarà identificato"
+  [[command.params]]
+  name = "vault_password"
+  kind = "input"
+  secret = true
+  description.en = "the master password — the data is encrypted with it; if you lose it, everything is lost forever"
+  description.it = "la password principale — i dati sono cifrati con essa; se la perdi, tutto è perso per sempre"
+  [[command.params]]
+  name = "algorithm"
+  kind = "choice"
+  description.en = "optional — the two-way encryption algorithm (e.g. AES-256-GCM, chacha20, ascon); default AES-256-GCM"
+  description.it = "facoltativo — l'algoritmo di cifratura bilaterale (es. AES-256-GCM, chacha20, ascon); default AES-256-GCM"
+  [[command.params]]
+  name = "kdf"
+  kind = "choice"
+  description.en = "optional — the one-way key-derivation (e.g. Argon2id, scrypt, pbkdf2); default Argon2id"
+  description.it = "facoltativo — la derivazione unilaterale della chiave (es. Argon2id, scrypt, pbkdf2); default Argon2id"
+
+[[command]]
+name = "deleteVault"
+pages = ["access"]
+action = "delete_vault"
+description.en = "delete a vault (asks its password)"
+description.it = "elimina un vault (chiede la password)"
+  [[command.params]]
+  name = "vault"
+  kind = "choice"
+  description.en = "which vault to delete (pick from the list or type its name)"
+  description.it = "quale vault eliminare (scegli dalla lista o scrivi il nome)"
+
+[[command]]
+name = "nukeVault"
+pages = ["access"]
+action = "nuke_vault"
+description.en = "erase all data in a vault (asks its password)"
+description.it = "cancella tutti i dati di un vault (chiede la password)"
+  [[command.params]]
+  name = "vault"
+  kind = "choice"
+  description.en = "which vault to wipe (pick from the list or type its name)"
+  description.it = "quale vault azzerare (scegli dalla lista o scrivi il nome)"
+
+[[command]]
+name = "language"
+pages = ["access", "vault"]
+action = "language"
+description.en = "change the interface language"
+description.it = "cambia la lingua dell'interfaccia"
+  [[command.params]]
+  name = "lang"
+  kind = "choice"
+  description.en = "the language to switch to (e.g. en, it)"
+  description.it = "la lingua a cui passare (es. en, it)"
+
+[[command]]
+name = "exportVault"
+pages = ["access"]
+action = "export_vault"
+description.en = "export a vault to an encrypted file you can back up or move"
+description.it = "esporta un vault in un file cifrato da salvare o spostare"
+  [[command.params]]
+  name = "vault"
+  kind = "choice"
+  description.en = "which vault to export (pick from the list or type its name)"
+  description.it = "quale vault esportare (scegli dalla lista o scrivi il nome)"
+  [[command.params]]
+  name = "destination"
+  kind = "input"
+  description.en = "where to save the file (a real path is pre-filled; edit it if you like)"
+  description.it = "dove salvare il file (un percorso reale è già inserito; modificalo se vuoi)"
+
+[[command]]
+name = "importVault"
+pages = ["access"]
+action = "import_vault"
+description.en = "import a vault exported by DataShield (asks its password to unlock it)"
+description.it = "importa un vault esportato da DataShield (chiede la password per sbloccarlo)"
+  [[command.params]]
+  name = "source"
+  kind = "input"
+  description.en = "path of the .vault file to import"
+  description.it = "percorso del file .vault da importare"
+  [[command.params]]
+  name = "password"
+  kind = "input"
+  secret = true
+  description.en = "the master password of that vault — needed to decrypt and verify it"
+  description.it = "la password principale di quel vault — serve a decifrarlo e verificarlo"
+
+[[command]]
+name = "settings"
+aliases = ["preferences"]
+pages = ["access", "vault"]
+action = "settings"
+description.en = "appearance & language: theme, background, language, blur"
+description.it = "aspetto e lingua: tema, sfondo, lingua, sfocatura"
+
+[[command]]
+name = "add"
+aliases = ["aggiungi", "new"]
+pages = ["vault"]
+action = "add_item"
+description.en = "add an item — pick a category, then fill its fields"
+description.it = "aggiungi un elemento — scegli una categoria, poi compila i suoi campi"
+  [[command.params]]
+  name = "category"
+  kind = "choice"
+  description.en = "which kind of item (email, account, credit card, …)"
+  description.it = "che tipo di elemento (email, account, carta di credito, …)"
+
+[[command]]
+name = "star"
+aliases = ["favorite", "preferito"]
+pages = ["vault"]
+action = "star_item"
+description.en = "toggle ★ favorite on an item — favorites sort to the top (or press Ctrl+S on it)"
+description.it = "attiva/disattiva ★ preferito su un elemento — i preferiti salgono in cima (o premi Ctrl+S su di esso)"
+  [[command.params]]
+  name = "item"
+  kind = "choice"
+  description.en = "which item (defaults to the highlighted one; pick from the list or type its name)"
+  description.it = "quale elemento (predefinito quello evidenziato; scegli dalla lista o scrivi il nome)"
+
+[[command]]
+name = "delete"
+aliases = ["elimina", "rm"]
+pages = ["vault"]
+action = "delete_item"
+description.en = "delete a saved item"
+description.it = "elimina un elemento salvato"
+  [[command.params]]
+  name = "item"
+  kind = "choice"
+  description.en = "which item to delete (pick from the list or type its name)"
+  description.it = "quale elemento eliminare (scegli dalla lista o scrivi il nome)"
+
+[[command]]
+name = "edit"
+aliases = ["modifica"]
+pages = ["vault"]
+action = "edit_item"
+description.en = "edit a saved item (or press Ctrl+E on it)"
+description.it = "modifica un elemento salvato (o premi Ctrl+E su di esso)"
+  [[command.params]]
+  name = "item"
+  kind = "choice"
+  description.en = "which item to edit (pick from the list or type its name)"
+  description.it = "quale elemento modificare (scegli dalla lista o scrivi il nome)"
+
+[[command]]
+name = "search"
+aliases = ["cerca", "find"]
+pages = ["vault"]
+action = "search_items"
+description.en = "search items by name or field content"
+description.it = "cerca elementi per nome o per contenuto dei campi"
+  [[command.params]]
+  name = "query"
+  kind = "input"
+  description.en = "what to look for"
+  description.it = "cosa cercare"
+
+[[command]]
+name = "category"
+aliases = ["categoria"]
+pages = ["vault"]
+action = "manage_category"
+description.en = "create a custom category with the fields you choose"
+description.it = "crea una categoria personalizzata con i campi che scegli"
+  [[command.params]]
+  name = "name"
+  kind = "input"
+  description.en = "the name of the new category (e.g. database)"
+  description.it = "il nome della nuova categoria (es. database)"
+
+[[command]]
+name = "encInfo"
+aliases = ["crypto"]
+pages = ["vault"]
+action = "enc_info"
+description.en = "show the vault's (non-secret) encryption details, or one item's"
+description.it = "mostra i dettagli di crittografia (non segreti) del vault, o di un elemento"
+  [[command.params]]
+  name = "item"
+  kind = "choice"
+  description.en = "optional — a specific item to inspect (else the whole vault)"
+  description.it = "facoltativo — un elemento specifico da ispezionare (altrimenti tutto il vault)"
+
+[[command]]
+name = "rerollEnc"
+aliases = ["reroll"]
+pages = ["vault"]
+action = "reroll_enc"
+description.en = "re-derive the key and re-encrypt the whole vault (asks the password)"
+description.it = "ri-deriva la chiave e ri-cifra l'intero vault (chiede la password)"
+
+[[command]]
+name = "nuke"
+aliases = ["azzera"]
+pages = ["vault"]
+action = "nuke_items"
+description.en = "wipe ALL items in the vault (asks the password + confirmation)"
+description.it = "cancella TUTTI gli elementi del vault (chiede password + conferma)"
+
+[[command]]
+name = "exit"
+pages = ["vault"]
+action = "exit_vault"
+description.en = "close the vault and go back to the vault list"
+description.it = "chiudi il vault e torna alla lista dei vault"
+
+[[command]]
+name = "~"
+pages = ["access", "vault"]
+action = "panel"
+description.en = "move through the ~ panel history"
+description.it = "muoviti nello storico del pannello ~"
+  [[command.params]]
+  name = "direction"
+  kind = "choice"
+  description.en = "back = previous view, forw = next view"
+  description.it = "back = vista precedente, forw = vista successiva"
+
+[[command]]
+name = "sync"
+aliases = ["sincronizza"]
+pages = ["access", "vault"]
+action = "sync"
+description.en = "sync this vault to your server (set it up the first time)"
+description.it = "sincronizza questo vault sul tuo server (prima volta: lo configuri)"
+
+[[command]]
+name = "passwd"
+aliases = ["password", "cambia-password"]
+pages = ["access", "vault"]
+action = "change_password"
+description.en = "change this vault's master password (re-encrypts in the background)"
+description.it = "cambia la password principale di questo vault (ricifra in background)"
+
+[[command]]
+name = "memo"
+aliases = ["memorandum"]
+pages = ["vault"]
+action = "memo"
+description.en = "open the memorandum — your own chat inside the vault, for notes and photos"
+description.it = "apri il memorandum — la chat con te stesso dentro il vault, per note e foto"
+
+[[command]]
+name = "ragtoken"
+aliases = ["token", "api-token"]
+pages = ["access", "vault"]
+action = "rag_token"
+description.en = "copy this session's agent-API token (cleared from the clipboard after 20 s)"
+description.it = "copia il token dell'API dell'agente di questa sessione (rimosso dagli appunti dopo 20 s)"
+
+[[command]]
+name = "logintoken"
+aliases = ["login-token", "extension-token"]
+pages = ["access", "vault"]
+action = "login_token"
+description.en = "copy the browser extension's pairing token (cleared from the clipboard after 20 s); `logintoken new` mints a fresh one"
+description.it = "copia il token di abbinamento dell'estensione browser (rimosso dagli appunti dopo 20 s); `logintoken new` ne genera uno nuovo"
+  [[command.params]]
+  name = "new"
+  kind = "choice"
+  description.en = "optional — `new` retires the current token and mints another (the extension must be paired again)"
+  description.it = "facoltativo — `new` ritira il token attuale e ne genera un altro (l'estensione va abbinata di nuovo)"

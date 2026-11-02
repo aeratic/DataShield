@@ -1,0 +1,10 @@
+DataShield.app bundles a private, unmodified-in-function copy of the kitty
+terminal emulator (https://github.com/kovidgoyal/kitty), copyright
+Kovid Goyal, licensed under the GNU General Public License v3 — see
+LICENSE-kitty.txt next to this file. kitty runs as a separate process and
+DataShield talks to it only through the terminal; DataShield itself is a
+separate work under its own licence.
+
+The complete corresponding source of the bundled kitty version is available at
+https://github.com/kovidgoyal/kitty/releases (see Contents/Info.plist's
+KittyVersion for the exact release).

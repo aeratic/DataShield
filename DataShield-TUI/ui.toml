@@ -1,0 +1,107 @@
+# DataShield TUI — interface "chrome" (edit freely).
+#
+# Unlike settings.toml (which the app rewrites when you change a setting from
+# the settings page), THIS file is only ever READ by the app: your comments and
+# formatting are safe. Delete the file to regenerate this default. Every key is
+# optional — a missing key falls back to the value shown here, and a malformed
+# file falls back entirely to the built-in default (with a status-bar note), so
+# an edit can never keep the app from starting.
+
+# Bumping this in the shipped default regenerates an older on-disk copy (the old
+# one is kept as ui.toml.bak) — this is how new chrome defaults reach you.
+version = 4
+
+[input]
+# The character(s) shown before the command line. Any glyph works: / > ❯ : #
+# An empty string ("") hides the prompt. Clamped to a few columns.
+prompt = "/"
+
+[panel]
+# Width of the left (vault list) panel as a percentage of the screen (20–60);
+# the contextual ~ panel takes the rest.
+left_percent = 38
+
+[brand]
+# Logo colour: "green" (the brand), "accent" (follows the current theme), or a
+# hex colour like "#7ec8d6". The pixel-Saturn art itself lives in logo.txt.
+color = "green"
+# Optional tagline shown under the logo, per language.
+tagline.en = "your terminal vault"
+tagline.it = "il tuo caveau nel terminale"
+
+[header]
+# One-liner quotes typed out (and erased) one at a time, in a RANDOM order, to
+# the right of the logo behind a vertical divider. These are language-agnostic:
+# the same pool is shown whatever the interface language. Add or remove freely
+# (an empty list falls back to the built-ins). The "type /help or /commands"
+# hint lives under the ~ animation, not here.
+phrases = [
+  "Imagination is more important than knowledge.",
+  "E pur si muove.",
+  "Je pense, donc je suis.",
+  "The universe is under no obligation to make sense to you.",
+  "La natura non fa salti.",
+  "If I have seen further, it is by standing on the shoulders of giants.",
+  "An unexamined life is not worth living.",
+  "La ciencia es la mejor herramienta que tenemos.",
+  "科学は疑問から始まる。",
+  "The important thing is not to stop questioning.",
+  "Conosci te stesso.",
+  "El que no arriesga, no gana.",
+  "L'enfer, c'est les autres.",
+  "一期一会。",
+  "The only true wisdom is knowing you know nothing.",
+  "Carpe diem.",
+  "七転び八起き。",
+  "Lo que no te mata, te hace más fuerte.",
+  "Il faut imaginer Sisyphe heureux.",
+  "Not all those who wander are lost.",
+  "There's no place like 127.0.0.1",
+  "It works on my machine.",
+  "sudo make me a sandwich.",
+  "Errare humanum est, sed in errare perseverare diabolicum.",
+  "In pizza we trust.",
+  "42.",
+  "May the Force be with you.",
+  "話せばわかる。",
+  "Veni, vidi, vici.",
+  "Live long and prosper.",
+  "Nel mezzo del cammin di nostra vita.",
+  "To be or not to be.",
+  "La vie en rose.",
+  "El amor es eterno mientras dura.",
+  "音楽は言葉にできないものを語る。",
+  "Lasciate ogni speranza, voi ch'entrate.",
+  "L'art pour l'art.",
+  "Two roads diverged in a wood.",
+  "La belleza está en los ojos del que mira.",
+  "Cogito ergo sum.",
+  "Panta rhei.",
+  "Time flies like an arrow; fruit flies like a banana.",
+  "La mer, la mer, toujours recommencée.",
+  "El tiempo es oro.",
+  "水善利万物而不争。",
+  "Ogni fine è un nuovo inizio.",
+  "The sky is not the limit.",
+  "花は咲き、散る。",
+  "Après la pluie, le beau temps.",
+  "In the beginning was the Word.",
+  "With great power comes great responsibility.",
+  "Quis custodiet ipsos custodes?",
+  "Trust no one.",
+  "La porta è chiusa ma la finestra è aperta.",
+  "鍵は心の中にある。",
+  "Keep it secret, keep it safe.",
+  "Omnia mea mecum porto.",
+  "Securitas ante omnia.",
+  "El secreto mejor guardado es el que no se dice.",
+  "Ce qui se conçoit bien s'énonce clairement.",
+]
+
+[extension]
+# Where the "install extension" row of the settings page sends your browser:
+# the store listing of the DataShield browser extension for each browser
+# family. Empty until the extension is published — the row then explains how
+# to load it from the `extension/` folder by hand.
+chrome_url = ""
+firefox_url = ""

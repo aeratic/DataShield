@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>DataShield</title>
+<style>
+  body { margin: 0; min-width: 300px; max-width: 420px; background: #0F0D0A; color: #E8E2D3;
+         font: 13px/1.5 ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace; }
+  .wrap { padding: 12px 14px; }
+  h1 { font-size: 14px; margin: 0 0 10px; color: #D9A855; }
+  h1 span { color: #6A6253; font-weight: 400; }
+  label { display: block; color: #9C9384; margin-top: 8px; font-size: 12px; }
+  input { width: 100%; box-sizing: border-box; background: #171310; color: #E8E2D3;
+          border: none; border-bottom: 1px solid #3E382E; padding: 6px 4px; font: inherit; outline: none; }
+  input:focus { border-bottom-color: #D9A855; }
+  .row { display: flex; gap: 8px; margin-top: 12px; }
+  button { flex: 1; background: #241F17; color: #E3B96B; border: 1px solid #3E382E; border-radius: 4px;
+           padding: 6px; font: inherit; font-weight: 600; cursor: pointer; }
+  button:hover { border-color: #D9A855; }
+  .status { margin-top: 12px; padding: 8px; border-radius: 4px; background: #171310; color: #9C9384; font-size: 12px; }
+  .ok { color: #7FC66E; } .warn { color: #E08F3F; } .bad { color: #E25D5D; }
+  .hint { color: #6A6253; font-size: 11px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>▌ DataShield <span>· extension</span></h1>
+  <label for="token" id="tokenLabel">pairing token — from logintoken in DataShield</label>
+  <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="64 hex characters">
+  <label for="port" id="portLabel">API port (settings → RAG → API port)</label>
+  <input id="port" type="number" min="1" max="65535" value="7737">
+  <div class="row">
+    <button id="save">save</button>
+    <button id="test">test</button>
+  </div>
+  <div class="status" id="status">…</div>
+  <div class="hint" id="hint"></div>
+</div>
+<script src="i18n.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>
