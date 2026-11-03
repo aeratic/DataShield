@@ -37,6 +37,14 @@ fi
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 
+# the tag the download resolves to, for the final message (best-effort)
+if [ "$VERSION" = latest ]; then
+    tag="$(curl -fsSL -o /dev/null -w '%{url_effective}' "https://github.com/$REPO/releases/latest" 2>/dev/null | sed 's#.*/tag/##')"
+else
+    tag="$VERSION"
+fi
+installed="DataShield TUI ${tag:-latest}"
+
 case "$os" in
 Darwin)
     asset="DataShield-TUI-macos-$arch.dmg"
@@ -50,7 +58,7 @@ Darwin)
     hdiutil detach "$mnt" -quiet
     # the download came through curl, not a browser, so there is no quarantine
     # flag to clear; Gatekeeper may still ask once if the build is unsigned.
-    say "installed $dest/DataShield.app"
+    say "installed $installed -> $dest/DataShield.app"
     say "open it from Launchpad, or: open \"$dest/DataShield.app\""
     ;;
 Linux)
@@ -65,7 +73,7 @@ Linux)
     install -m644 "$tmp/datashield.kitty.conf" "$HOME/.config/datashield/datashield.kitty.conf"
     install -m644 "$tmp/datashield.desktop"    "$HOME/.local/share/applications/datashield.desktop"
     [ -f "$tmp/datashield.png" ] && install -m644 "$tmp/datashield.png" "$HOME/.local/share/icons/hicolor/128x128/apps/datashield.png"
-    say "installed to $bindir"
+    say "installed $installed -> $bindir"
     command -v kitty >/dev/null || say "note: install kitty for DataShield's own window (apt/dnf/pacman install kitty); without it DataShield runs in your current terminal"
     case ":$PATH:" in *":$bindir:"*) ;; *) say "note: add $bindir to your PATH" ;; esac
     say "run: datashield"
