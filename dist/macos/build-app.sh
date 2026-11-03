@@ -65,7 +65,10 @@ $pb -c "Delete :CFBundleIconName"       "$plist" 2>/dev/null || true
 $pb -c "Set :CFBundleShortVersionString $version"          "$plist" 2>/dev/null || $pb -c "Add :CFBundleShortVersionString string $version" "$plist"
 $pb -c "Set :CFBundleVersion $version"                     "$plist" 2>/dev/null || $pb -c "Add :CFBundleVersion string $version" "$plist"
 # kitty registers itself as a handler for shell/ssh URLs and as a terminal; DataShield is neither
-kitty_version="$("$macos/kitty" --version 2>/dev/null | awk '{print $2}')"
+# read from the SOURCE bundle's plist: the copy inside $app is mid-surgery and
+# must not be executed here (a failing substitution would abort the script
+# under `set -e` before the signature below)
+kitty_version="$($pb -c "Print :CFBundleShortVersionString" "$kitty_app/Contents/Info.plist" 2>/dev/null || true)"
 $pb -c "Add :KittyVersion string ${kitty_version:-unknown}" "$plist" 2>/dev/null || true
 $pb -c "Delete :CFBundleURLTypes"      "$plist" 2>/dev/null || true
 $pb -c "Delete :CFBundleDocumentTypes" "$plist" 2>/dev/null || true
@@ -80,6 +83,7 @@ python3 -I "$here/patch-strings.py" "$fdt"
 codesign --force --sign - "$fdt" >/dev/null 2>&1
 
 # ad-hoc signature so Gatekeeper and the Dock accept the modified bundle
-codesign --force --deep --sign - "$app" >/dev/null 2>&1 || echo "warning: codesign failed" >&2
+codesign --force --deep --sign - "$app" >/dev/null 2>&1 || { echo "error: codesign failed" >&2; exit 1; }
+codesign --verify --deep "$app" || { echo "error: bundle signature does not verify" >&2; exit 1; }
 
 echo "built $app"
