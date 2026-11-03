@@ -27,10 +27,12 @@ int main(int argc, char **argv) {
 
     // kitty [opts] datashield-tui [user args...]
     int extra = argc - 1;
-    char **args = calloc(12 + extra, sizeof *args);
+    char **args = calloc(14 + extra, sizeof *args);
     int i = 0;
     args[i++] = kitty;
     args[i++] = "--single-instance";
+    // remote control (blur, focus) goes over this socket, never over the tty
+    args[i++] = "--listen-on"; args[i++] = "unix:/tmp/datashield-kitty";
     args[i++] = "--instance-group"; args[i++] = "DataShield";
     args[i++] = "--config";         args[i++] = conf;
     args[i++] = "--override";       args[i++] = shell;

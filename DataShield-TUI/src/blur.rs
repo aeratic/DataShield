@@ -63,10 +63,10 @@ pub fn set_translucent(on: bool) -> Outcome {
         return Outcome::NotKitty;
     }
     let value = if on { TRANSLUCENT } else { OPAQUE };
-    match Command::new("kitty")
-        .args(["@", "set-background-opacity", value])
-        .output()
-    {
+    let Some(mut cmd) = remote_control() else {
+        return Outcome::Failed("kitty remote control socket not available".into());
+    };
+    match cmd.args(["set-background-opacity", value]).output() {
         Ok(out) if out.status.success() => {
             APPLIED.store(on, Ordering::Relaxed);
             Outcome::Applied
@@ -89,8 +89,24 @@ pub fn set_translucent(on: bool) -> Outcome {
 /// from the exit path and the panic hook (a no-op otherwise); best-effort.
 pub fn restore_on_exit() {
     if APPLIED.swap(false, Ordering::Relaxed) {
-        let _ = Command::new("kitty")
-            .args(["@", "set-background-opacity", OPAQUE])
-            .output();
+        if let Some(mut cmd) = remote_control() {
+            let _ = cmd.args(["set-background-opacity", OPAQUE]).output();
+        }
     }
+}
+
+/// `kitty @ --to <socket>` with stdin detached, or `None` when kitty exposed
+/// no socket. Remote control is NEVER sent over the tty: kitty answers there
+/// with `\x1bP@kitty-cmd{"ok": true}\x1b\\`, which lands in the app's own
+/// input queue and is read as keystrokes (the `i` of "kitty" opened the
+/// import form and the rest typed itself into it). The launcher starts kitty
+/// with `--listen-on`, which sets `KITTY_LISTEN_ON` for us.
+pub fn remote_control() -> Option<Command> {
+    let socket = std::env::var("KITTY_LISTEN_ON").ok()?;
+    let mut cmd = Command::new("kitty");
+    cmd.arg("@")
+        .arg("--to")
+        .arg(socket)
+        .stdin(std::process::Stdio::null());
+    Some(cmd)
 }

@@ -41,9 +41,9 @@ export DATASHIELD_OWN_TERM=1
 kitty_class="--class=DataShield"
 [[ "$(uname -s)" == Darwin ]] && kitty_class="--title=DataShield"
 if command -v kitty >/dev/null && [[ -n "$conf" ]]; then
-    exec kitty --single-instance --instance-group DataShield --config "$conf" "$kitty_class" --title DataShield "$bin" "$@"
+    exec kitty --single-instance --instance-group DataShield --listen-on unix:/tmp/datashield-kitty --config "$conf" "$kitty_class" --title DataShield "$bin" "$@"
 elif command -v kitty >/dev/null; then
-    exec kitty --single-instance --instance-group DataShield "$kitty_class" --title DataShield "$bin" "$@"
+    exec kitty --single-instance --instance-group DataShield --listen-on unix:/tmp/datashield-kitty "$kitty_class" --title DataShield "$bin" "$@"
 fi
 # no kitty → run in the current terminal (favicons fall back to monograms)
 exec "$bin" "$@"

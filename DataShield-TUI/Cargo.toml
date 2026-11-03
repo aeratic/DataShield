@@ -1,6 +1,6 @@
 [package]
 name = "datashield-tui"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "TerminalDataShield — TUI (ratatui) front-end sharing the CLI crypto/vault core"
 authors = ["Bruno Galimi"]

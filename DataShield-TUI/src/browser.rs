@@ -254,9 +254,8 @@ pub fn bring_to_front() {
             });
         }
     };
-    if std::env::var_os("KITTY_WINDOW_ID").is_some() {
-        let mut c = Command::new("kitty");
-        c.args(["@", "focus-window"]);
+    if let Some(mut c) = crate::blur::remote_control() {
+        c.arg("focus-window");
         spawn(c);
     }
     if std::env::var_os("HYPRLAND_INSTANCE_SIGNATURE").is_some() {
