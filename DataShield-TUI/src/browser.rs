@@ -197,6 +197,16 @@ fn opener_command(target: &str) -> Command {
 /// `osascript` on macOS, nothing on Windows yet. A missing tool is not an
 /// error — the status line said the same thing already.
 pub fn notify(title: &str, body: &str) {
+    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
+    {
+        let _ = (title, body);
+    }
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    notify_via_command(title, body);
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn notify_via_command(title: &str, body: &str) {
     let mut cmd = {
         #[cfg(target_os = "macos")]
         {
@@ -213,11 +223,6 @@ pub fn notify(title: &str, body: &str) {
             let mut c = Command::new("notify-send");
             c.arg("--app-name=DataShield").arg(title).arg(body);
             c
-        }
-        #[cfg(not(any(target_os = "linux", target_os = "macos")))]
-        {
-            let _ = (title, body);
-            return;
         }
     };
     if let Ok(mut child) = cmd
