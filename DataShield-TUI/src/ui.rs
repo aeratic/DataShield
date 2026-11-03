@@ -2796,8 +2796,11 @@ fn draw_docked_detail(f: &mut Frame, inner: Rect, app: &App, item: &crate::model
         }
 
         // a TOTP field shows the LIVE code it generates (`824 019 ⟳ 12 s`),
-        // never the seed — the code is what you type, and it dies in 30 s.
-        if crate::clipboard::is_totp_field(field) && !field.value.is_empty() {
+        // not the seed — the code is what you type, and it dies in 30 s. With
+        // `reveal` on the row falls through to the plain path below and shows
+        // the seed itself: the one thing you need to move the account to
+        // another authenticator, and the only way to ever see it.
+        if crate::clipboard::is_totp_field(field) && !field.value.is_empty() && !app.detail_reveal {
             if let Some((code, left)) = crate::totp::code_now(field.value.as_str()) {
                 let grouped = format!("{} {}", &code[..3], &code[3..]);
                 let spans = vec![
@@ -4334,6 +4337,12 @@ mod tests {
             l.contains('⟳') && l.chars().filter(|c| c.is_ascii_digit()).count() >= 7
         });
         assert!(has_code, "a generated code is on the totp row");
+        // `reveal` (r) is the one way to the seed: the row then shows it in
+        // place of the code, for moving the account to another authenticator
+        key(&mut app, KeyCode::Char('r'));
+        let text = render_sized(&app, 110, 34);
+        assert!(text.contains("GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ"), "reveal shows the seed");
+        assert!(!text.contains("⟳"), "no live code while the seed is shown");
     }
 
     #[test]
